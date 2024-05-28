@@ -21,7 +21,10 @@ app.use(cors(corsOptions));
 
 // Configure CloudConvert API credentials
 const cloudConvertApiKey = process.env.CLOUD_CONVERT_API_KEY;
+const cloudConvertSandboxKey = process.env.CLOUD_CONVERT_SAN_KEY;
+
 const cloudConvert = new cloudconvert(cloudConvertApiKey, false);
+// const cloudConvert = new cloudconvert(cloudConvertSandboxKey, true);
 
 // Define an API endpoint to receive DXF file
 app.post('/convert', upload.single('file'), async (req, res) => {
@@ -29,6 +32,8 @@ app.post('/convert', upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).send('No file uploaded');
     }
+
+    const format = req.body.format
 
     // Create a CloudConvert job
     const job = await cloudConvert.jobs.create({
@@ -39,7 +44,7 @@ app.post('/convert', upload.single('file'), async (req, res) => {
         'convert-my-file': {
           operation: 'convert',
           input: ['import-my-file'],
-          output_format: 'dwg'
+          output_format: format
         },
         'export-my-file': {
           operation: 'export/url',
